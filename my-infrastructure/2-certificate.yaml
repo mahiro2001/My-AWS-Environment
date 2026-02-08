@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Step 2: DevHub ACM Certificate (us-east-1)'
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: "The main domain name (e.g. example.com)"
+  
+  HostedZoneId:
+    Type: String
+    Description: "The Route 53 Hosted Zone ID (passed from script)"
+
+Resources:
+  # ------------------------------------------------------------
+  # ACM Certificate (Must be deployed to us-east-1)
+  # ------------------------------------------------------------
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Sub "*.${DomainName}"
+      SubjectAlternativeNames:
+        - !Ref DomainName
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          # Use the passed parameter instead of cross-stack import
+          HostedZoneId: !Ref HostedZoneId
+      Tags:
+        - Key: Name
+          Value: !Sub "${DomainName}-wildcard-cert"
+
+Outputs:
+  CertificateArn:
+    Description: "ACM Certificate ARN (us-east-1)"
+    Value: !Ref Certificate
+    Export:
+      Name: !Sub "${AWS::StackName}-CertificateArn"

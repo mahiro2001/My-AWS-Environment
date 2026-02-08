@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Step 1: DevHub Route 53 Hosted Zone'
+
+Parameters:
+  DomainName:
+    Type: String
+    Description: "The main domain name (e.g. example.com)"
+
+Resources:
+  # ------------------------------------------------------------
+  # Route 53 Hosted Zone
+  # ------------------------------------------------------------
+  HostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      Name: !Ref DomainName
+      HostedZoneConfig:
+        Comment: "Managed by CloudFormation (DevHub Shared Infra)"
+
+Outputs:
+  HostedZoneId:
+    Description: "Route 53 Hosted Zone ID"
+    Value: !Ref HostedZone
+    Export:
+      Name: !Sub "${AWS::StackName}-HostedZoneId"
+  
+  # Note: NameServers are not directly available as an output attribute of AWS::Route53::HostedZone
+  # Users must check the AWS Console or use CLI to retrieve them.
